@@ -1,0 +1,54 @@
+login
+  "method": "POST",
+        "body": {
+          "username": "hannah",
+          "password": "hannah21"
+        } 
+-------------------------------
+Create a new product   
+   "method": "POST",
+        "body": {
+          "name": "Toy Car",
+          "description": "A small toy car",
+          "price": 15.99,
+          "quantity": 10
+        }
+---------------------------------
+Retrieve all products
+  "method": "GET", "path": "/products/{product_id} *id option not required*
+          "products": [
+            {
+              "id": 1,
+              "name": "Toy Car",
+              "description": "A small toy car",
+              "price": 15.99,
+              "quantity": 10
+            },
+            {
+              "id": 2,
+              "name": "Doll",
+              "description": "A beautiful doll",
+              "price": 25.50,
+              "quantity": 5
+            }
+          ]
+---------------------------------------
+Retrieve a single product by ID 
+   
+  "method": "GET", "path": "/products/{product_id}", *required*
+-----------------------------------------   
+Update an existing product  
+  "method": "PUT",  "path": "/products/{product_id}",*required*
+
+      
+        "body": {
+          "name": "Updated Toy Car",
+          "description": "An updated description",
+          "price": 19.99,
+          "quantity": 8
+        }
+---------------------------------
+ Delete a product by ID  
+  "method": "DELETE", "path": "/products/{product_id}",
+      
+---------------------------------
