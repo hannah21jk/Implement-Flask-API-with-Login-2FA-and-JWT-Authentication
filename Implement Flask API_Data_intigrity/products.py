@@ -1,10 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import mysql.connector
+import pyotp  # For 2FA code generation and verification
 
 app = Flask(__name__)
 
-# JWT configuration
+# JWT configuration for authentication
 app.config['JWT_SECRET_KEY'] = '6ea1abd4aba389631344fb9178577924-4496-ad8a-825691d3c700'
 jwt = JWTManager(app)
 
@@ -28,7 +29,14 @@ def product_exists(product_id):
     exists = cursor.fetchone()
     cursor.close()
     conn.close()
+    # If a product is found, it returns a non-None value
     return exists is not None
+
+# Function to verify 2FA code
+def verify_2fa(user_otp):
+    secret = 'JBSWY3DPEHPK3PXP'
+    totp = pyotp.TOTP(secret)
+    return totp.verify(user_otp)
 
 # Endpoint to create a new product
 @app.route('/products', methods=['POST'])
@@ -38,7 +46,7 @@ def create_product():
         return jsonify({"error": "Missing JSON in request"}), 400
 
     data = request.get_json()
-    
+    # Check if all required fields are present
     required_fields = ["name", "description", "price", "quantity"]
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing required fields"}), 400
@@ -46,7 +54,7 @@ def create_product():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-
+       # Insert the product into the database
         cursor.execute("""
             INSERT INTO Products (name, description, price, quantity) 
             VALUES (%s, %s, %s, %s)
@@ -147,20 +155,21 @@ def delete_product(product_id):
         cursor.close()
         conn.close()
 
-# Endpoint for user login
-@app.route('/login', methods=['POST'])
-def login():
+# Endpoint to verify 2FA and generate access token
+@app.route('/verify-2fa', methods=['POST'])
+def verify_2fa_endpoint():
     if not request.is_json:
         return jsonify({"error": "Missing JSON in request"}), 400
 
     data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
-
-    if username == 'hannah' and password == 'hannah21':
-        access_token = create_access_token(identity=username)
+    user_otp = data.get('otp')  
+    # Verify the 2FA code
+    # This should be securely stored, possibly in a database per user
+    if verify_2fa(user_otp):
+        access_token = create_access_token(identity='user') 
         return jsonify({'access_token': access_token}), 200
-    return jsonify({'message': 'Invalid username or password'}), 401
+
+    return jsonify({'error': 'Invalid 2FA code'}), 401
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001)
