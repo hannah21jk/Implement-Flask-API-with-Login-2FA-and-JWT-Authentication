@@ -1,0 +1,23 @@
+body {
+    background-color: #f8f9fa;
+  }
+  
+  .container {
+    max-width: 500px;
+  }
+  
+  form {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  h2 {
+    color: #007bff;
+  }
+  
+  #message {
+    margin-top: 15px;
+  }
+  
